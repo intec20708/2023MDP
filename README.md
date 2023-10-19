@@ -3,7 +3,7 @@
 import time
 import picamera
 
-*** 카메라 객체 생성
+# 카메라 객체 생성
 camera = picamera.PiCamera()
 
 try:
