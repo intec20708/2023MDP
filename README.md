@@ -1,5 +1,5 @@
 # 카메라 작동 코드
-
+'''
 import time
 import picamera
 
@@ -30,3 +30,4 @@ try:
 finally:
     # 카메라 객체 정리
     camera.close()
+'''
