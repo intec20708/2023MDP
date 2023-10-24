@@ -36,12 +36,6 @@ Button = Button(17)
 global cnt
 global capPath
 global resultPath
-global 1_h
-global 1_s
-global 1_v
-global u_h
-global u_s
-global u_v
 
 resultPath = ["/home/pi/Desktop/Img/result1.png", "/home/pi/Desktop/Img/result2.png", "/home/pi/Desktop/Img/result3.png", "/home/pi/Desktop/Img/result4.png"]
 cnt = 0
