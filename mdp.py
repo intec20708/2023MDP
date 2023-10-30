@@ -64,3 +64,86 @@ while True:
 
     #찍은 사진 내보내기
     cv2.imwrite(capPath, frame)
+
+    #찍은 사진과 배경으로 쓸 사진 불러오기
+    img = cv2.imread(capPath)
+    window = cv2.imread(backPath)
+    window = cv2.resize(window, (750, 450))
+
+    #발판 값 읽어 옴
+    inputIO = GPIO.input(17)
+
+    if imsi == ord('x'):
+
+        if flag == True:
+            flag == False
+        else:
+            flag = True
+    #발판을 누루면
+    if inputIO == 0:
+        #사진 추출
+        cv2.imwrite(resultPath[cnt], frame)
+        break
+
+    if imsi == ord('c'):
+        #모든 창 닫기
+        cv2.destoryAllWindows()
+        break
+
+    if flag == True:
+
+        if flag2 == False:
+            cv2.namedWindow('panel')
+
+        cv2.resize(panel, (750, 450))
+        cv2.imshow('panel', panel)
+    
+    cap.release()
+    cv2.destroyAllWindows()
+
+#메일로 사진을 보내는 함수
+def send():
+
+    global txtbox
+    global cnt
+    global resultPath
+
+    txt = txtbox.get("1.0", "end")
+
+    gmail_smtp = "smtp.gmail.com"  #gmail smtp 주소
+    gmail_port = 465  #포트 번호
+    smpt = smtplib.SMTP_SSL(gmail_smtp, gmail_port)
+    my_id = "kko20_s23_20708@gclass.ice.go.kr"
+    my_password = "dlskduddlskdud"
+    smpt.login(my_id, my_password)
+    msg = MIMEMultipart()
+    msg.set_charset('utf-8')
+    msg["Subject"] = "사진 보내드립니다."
+    msg["From"] = "인공2-1-3"
+    msg["To"] = txt
+    content = "안녕하세요 인공지능전자과 201 MDP 3조에서 사진 보내드립니다."
+    content_part = MIMEText(content, "plain")
+    msg.attach(content_part)
+
+    for i in range(cnt):
+
+        image_name = resultPath[i]
+        with open(image_name, 'rb') as fp:
+            img = MIMEImage(fp.read())
+            img.add_header('Content-Disposition','attachment', filename = image_name)
+            msg.attach(img)
+
+    to_mail = txt
+
+    smpt.sendmail(my_id, txt, msg.as_string())
+    smpt.quit()
+
+global txtbox
+txtbox = tk.Text(tool_bar, font=font, width=20, height=2)
+txtbox.grid(row=5)
+
+sendBtn = tk.Button(tool_bar, text="사진 보내기", bg="white", font=font, width=11, height=1, borderwidth=1, relief="solid", command=send)
+sendBtn.grid(row=6)
+
+root.mainloop()
+
