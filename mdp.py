@@ -70,7 +70,7 @@ while True:
     window = cv2.imread(backPath)
     window = cv2.resize(window, (750, 450))
 
-    #발판 값 읽어 옴
+    #발판 값 읽어 오기
     inputIO = GPIO.input(17)
 
     if imsi == ord('x'):
@@ -146,4 +146,3 @@ sendBtn = tk.Button(tool_bar, text="사진 보내기", bg="white", font=font, wi
 sendBtn.grid(row=6)
 
 root.mainloop()
-
