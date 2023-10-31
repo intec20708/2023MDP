@@ -1,0 +1,40 @@
+import cv2
+import numpy as np
+import tensorflow as tf
+
+# TensorFlow 모델 로드
+model = tf.keras.applications.MobileNetV2(weights="imagenet")
+target_size = (224, 224)
+
+# 객체 인식 함수 정의
+def detect_objects_from_camera():
+    cap = cv2.VideoCapture(0)  # 카메라 열기
+
+    while True:
+        ret, frame = cap.read()  # 프레임 읽기
+
+        if not ret:
+            break
+
+        # 프레임 크기 조정 및 전처리
+        frame = cv2.resize(frame, target_size)
+        input_data = np.expand_dims(frame, axis=0)
+        input_data = tf.keras.applications.mobilenet.preprocess_input(input_data)
+
+        # 객체 인식
+        predictions = model.predict(input_data)
+
+        # 결과를 화면에 표시
+        decoded_predictions = tf.keras.applications.mobilenet.decode_predictions(predictions)
+        object_name = decoded_predictions[0][0][1]  # 가장 확률이 높은 객체의 이름
+        cv2.putText(frame, object_name, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.imshow('Object Detection', frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+# 함수 호출하여 객체 인식 실행
+detect_objects_from_camera()
