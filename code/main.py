@@ -3,7 +3,7 @@ import dlib
 
 detector = dlib.get_frontal_face_detector()
 
-cap = cv2.VideoCapture('videos/girl.mp4')
+cap = cv2.VideoCapture(0)
 sticker_img = cv2.imread('imgs/cat.png', cv2.IMREAD_UNCHANGED)
 
 while True:
