@@ -4,7 +4,7 @@ import dlib
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('models/shape_predictor_5_face_landmarks.dat')
 
-cap = cv2.VideoCapture('videos/girl.mp4')
+cap = cv2.VideoCapture(0)
 sticker_img = cv2.imread('imgs/glasses.png', cv2.IMREAD_UNCHANGED)
 
 while True:
