@@ -183,7 +183,7 @@ def send_photos_via_email(photos, receiver_email):
        
 # 모니터에 이미지를 표시하는 함수
 def show_startscreen_on_monitor():
-    # 이미지 로드
+    
     w = Tk()
     w.title("screen")
     w.geometry("1260x891")
@@ -195,8 +195,6 @@ def show_startscreen_on_monitor():
     w.mainloop()
 
 
-
-# 메인 함수 - 프로그램 시작점
 def main():
     # 초기화 작업 등을 수행
 
@@ -208,9 +206,9 @@ def main():
     # GPIO.setup(switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     # GPIO.add_event_detect(switch_pin, GPIO.RISING, callback=switch_pressed_callback, bouncetime=300)
 
-    # 이미지 모니터에 특정 이미지 표시
+    # 이미지 모니터에 이미지 표시
     show_startscreen_on_monitor()
-    # 메인 루프
+ 
     if on_press():
         capture_photo()
 
