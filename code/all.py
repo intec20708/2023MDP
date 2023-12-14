@@ -8,11 +8,20 @@ from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 import dlib
 import keyboard
+from tkinter import *
 
 detector = dlib.get_frontal_face_detector()
 file_path = "C:/Users/user/Desktop/학교/MDP/cap"
 startscreen_path = "C:/Users/user/Desktop/학교/MDP/startscreen.png"
 cap = cv2.VideoCapture(0)
+
+w = Tk()
+w.title("screen")
+w.geometry("1260x891")
+
+photo = PhotoImage(file="C:/Users/user/Desktop/학교/MDP/startscreen.png")
+pLabel = Label(w, image=photo)
+pLabel.pack(expand=1, anchor=CENTER)
 
 # 카메라로부터 사진을 찍는 함수
 def capture_photo():
@@ -173,18 +182,17 @@ def send_photos_via_email(photos, receiver_email):
         
        
 # 모니터에 이미지를 표시하는 함수
-def show_startscreen_on_monitor(startscreen):
+def show_startscreen_on_monitor():
     # 이미지 로드
-    startscreen = cv2.imread("C:/Users/user/Desktop/학교/MDP/startscreen.png")
+    w = Tk()
+    w.title("screen")
+    w.geometry("1260x891")
 
-    # 이미지가 존재하는지 확인
-    if startscreen is not None:
-        # 이미지 윈도우 생성 및 이미지 표시
-        cv2.imshow('Image Display', startscreen)
-        cv2.waitKey(0)  # 사용자의 키 입력을 기다림
-        cv2.destroyAllWindows()  # 모든 OpenCV 창 닫기
-    else:
-        print("이미지를 찾을 수 없습니다.")
+    photo = PhotoImage(file="C:/Users/user/Desktop/학교/MDP/startscreen.png")
+    pLabel = Label(w, image=photo)
+    pLabel.pack(expand=1, anchor=CENTER)
+
+    w.mainloop()
 
 
 
@@ -201,11 +209,14 @@ def main():
     # GPIO.add_event_detect(switch_pin, GPIO.RISING, callback=switch_pressed_callback, bouncetime=300)
 
     # 이미지 모니터에 특정 이미지 표시
-    show_startscreen_on_monitor("C:/Users/user/Desktop/학교/MDP/startscreen.png")
-
+    show_startscreen_on_monitor()
     # 메인 루프
     if on_press():
         capture_photo()
 
     # 라즈베리 파이 GPIO 정리 (프로그램 종료 시)
     # GPIO.cleanup()
+
+# 프로그램 시작
+if __name__ == "__main__":
+    main()
