@@ -146,7 +146,7 @@ def send_photos_via_email(photos, receiver_email):
     smtp_port = 587  # Gmail의 경우 TLS 포트는 587
     smtp = smtplib.SMTP_SSL(smtp_server, smtp_port)
     sender_email = "kko20_s23_20708@gclass.ice.go.kr"
-    sender_password = "dlskduddlskdud"
+    sender_password = "1234123412341234"
     smtp.login(sender_email, sender_password)
     
     # 이메일 내용 설정
