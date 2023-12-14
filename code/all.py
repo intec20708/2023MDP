@@ -12,6 +12,7 @@ import keyboard
 detector = dlib.get_frontal_face_detector()
 file_path = "C:/Users/user/Desktop/학교/MDP/cap"
 startscreen_path = "C:/Users/user/Desktop/학교/MDP/startscreen.png"
+cap = cv2.VideoCapture(0)
 
 # 카메라로부터 사진을 찍는 함수
 def capture_photo():
@@ -25,7 +26,8 @@ def capture_photo():
         # 카메라 뷰파인더 표시 (필수는 아니지만 테스트 용이)
         cap.start_preview()
         
-        sticker_img = cv2.imread('imgs/cat.png', cv2.IMREAD_UNCHANGED)
+        sticker_img = cv2.imread('imgs/bear.png', cv2.IMREAD_UNCHANGED)
+        
         while True:
             ret, img = cap.read()
             
@@ -71,20 +73,18 @@ def capture_photo():
     pass  
 
 
-# 이벤트 핸들러 - 발판 스위치 누를 때 호출
-def switch_pressed_callback(channel):
-    capture_photo()
 
 def on_press(key):
     if key.name == '1':  # 발판 스위치가 연결된 키를 사용. (예시-1)
         print("발판 스위치가 눌렸습니다.")
         # 발판 스위치가 눌렸을 때 수행할 동작
-        capture_photo()        
+        capture_photo()
 
-keyboard.on_press(on_press)
+    keyboard.on_press(on_press)
 
-print("USB 발판 스위치를 대기 중입니다. 눌러보세요.")
-keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
+    print("USB 발판 스위치를 대기 중입니다. 눌러보세요.")
+    keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
+
 
 # 이전 사진들을 화면에 표시하는 함수
 def display_previous_photos(photos):
@@ -117,16 +117,60 @@ def display_previous_photos(photos):
 
 # 사용자에게 이메일을 입력받는 함수
 def ask_user_for_email():
+    
     # 사용자에게 이메일 입력을 받는 코드
-    user_email = input("이메일을 입력하세요: ")
-    return user_email
+    receiver_email = input("이메일을 입력하세요: ")
+    return receiver_email
+
 
 # 이메일로 사진을 전송하는 함수
-def send_photos_via_email(photos, user_email):
-    # 이메일을 사용하여 사진을 전송하는 코드
-    pass  
+def send_photos_via_email(photos, receiver_email):
 
+    global txtbox
+    global cnt
+    global resultPath
+    
+    txt = txtbox.get("1.0", "end")
+    
+    # 이메일 설정
+    smtp_server = 'smtp.gmail.com' 
+    smtp_port = 587  # Gmail의 경우 TLS 포트는 587입니다.
+    smtp = smtplib.SMTP_SSL(smtp_server, smtp_port)
+    sender_email = "kko20_s23_20708@gclass.ice.go.kr"
+    sender_password = "dlskduddlskdud"
+    smtp.login(sender_email, sender_password)
+    
+    # 이메일 내용 설정
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = "인공네컷 사진"
+    content = "인공지능전자과 201 MDP 3조 인공네컷 사진 보내드립니다"
+    content_part = MIMEText(content, "plain")
+    msg.attach(content_part)
 
+    for i in range(cnt):
+        image_name = resultPath[i]
+        with open(image_name, 'rb') as fp:
+            img = MIMEImage(fp.read())
+            img.add_header('Content-Disposition', 'attachment', 'filename=image_name')
+            msg.attach(img)
+                        
+    smtp.sendmail(sender_email, txt, msg.as_string())
+    smtp.quit()
+
+    # 이메일 서버 연결 및 전송
+    try:
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()  # TLS 보안 연결 시작
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+        server.quit()
+        print("이메일이 성공적으로 전송되었습니다.")
+    except Exception as e:
+        print(f"이메일 전송 중 오류 발생: {e}")
+        
+       
 # 모니터에 이미지를 표시하는 함수
 def show_startscreen_on_monitor(startscreen):
     # 이미지 로드
@@ -158,13 +202,9 @@ def main():
     # 이미지 모니터에 특정 이미지 표시
     show_startscreen_on_monitor("C:/Users/user/Desktop/학교/MDP/startscreen.png")
 
-    # 메인 루프 또는 다른 동작 수행
+    # 메인 루프
     if on_press():
         capture_photo()
 
     # 라즈베리 파이 GPIO 정리 (프로그램 종료 시)
     # GPIO.cleanup()
-
-# 프로그램 시작
-if __name__ == "__main__":
-    main()
