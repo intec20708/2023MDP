@@ -11,7 +11,7 @@ import keyboard
 from tkinter import *
 
 detector = dlib.get_frontal_face_detector()
-file_path = "C:/Users/user/Desktop/학교/MDP/cap"
+file_path = "C:/Users/user/Desktop/학교/MDP/pictures"
 startscreen_path = "C:/Users/user/Desktop/학교/MDP/startscreen.png"
 cap = cv2.VideoCapture(0)
 
@@ -81,7 +81,6 @@ def capture_photo():
         # 카메라 객체 정리
         cap.close()
     pass  
-
 
 
 def on_press(key):
