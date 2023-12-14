@@ -18,7 +18,8 @@ cap = cv2.VideoCapture(0)
 def capture_photo():
     # OpenCV를 사용하여 카메라로부터 사진을 찍는 코드
     cap = cv2.VideoCapture(0)
-
+    display_previous_photos()
+    
     try:
         # 카메라 설정 (해상도, 화면 회전 등)
         cap.resolution = (1920, 1080)
@@ -75,7 +76,7 @@ def capture_photo():
 
 
 def on_press(key):
-    if key.name == '1':  # 발판 스위치가 연결된 키를 사용. (예시-1)
+    if key.name == '1':  # 발판 스위치가 연결된 키를 사용. (1)
         print("발판 스위치가 눌렸습니다.")
         # 발판 스위치가 눌렸을 때 수행할 동작
         capture_photo()
@@ -97,7 +98,7 @@ def display_previous_photos(photos):
         if ret:
             photos.append(frame)  # 찍은 사진을 리스트에 추가
             
-    # 이미지 파일 경로 리스트 (여기서는 예시로 대체)
+    # 이미지 파일 경로 리스트
     image_paths = ['result1.jpg', 'result2.jpg', 'result3.jpg', 'result4.jpg']
 
     # 미리 찍힌 사진들을 리스트로 읽어들임
@@ -134,7 +135,7 @@ def send_photos_via_email(photos, receiver_email):
     
     # 이메일 설정
     smtp_server = 'smtp.gmail.com' 
-    smtp_port = 587  # Gmail의 경우 TLS 포트는 587입니다.
+    smtp_port = 587  # Gmail의 경우 TLS 포트는 587
     smtp = smtplib.SMTP_SSL(smtp_server, smtp_port)
     sender_email = "kko20_s23_20708@gclass.ice.go.kr"
     sender_password = "dlskduddlskdud"
