@@ -216,7 +216,3 @@ def main():
 
     # 라즈베리 파이 GPIO 정리 (프로그램 종료 시)
     # GPIO.cleanup()
-
-# 프로그램 시작
-if __name__ == "__main__":
-    main()
