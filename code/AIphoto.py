@@ -143,7 +143,7 @@ def send_photos_via_email(photos, receiver_email):
     
     # 이메일 설정
     smtp_server = 'smtp.gmail.com' 
-    smtp_port = 587  # Gmail의 경우 TLS 포트는 587
+    smtp_port = 465 
     smtp = smtplib.SMTP_SSL(smtp_server, smtp_port)
     sender_email = "kko20_s23_20708@gclass.ice.go.kr"
     sender_password = "1234123412341234"
@@ -210,6 +210,9 @@ def main():
  
     if on_press():
         capture_photo()
+        
+        ask_user_for_email()
+        send_photos_via_email()
 
     # 라즈베리 파이 GPIO 정리 (프로그램 종료 시)
     # GPIO.cleanup()
