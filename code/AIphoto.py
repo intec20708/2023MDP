@@ -141,7 +141,7 @@ def send_photos_via_email(photos, receiver_email):
     
     # 이메일 설정
     smtp_server = 'smtp.gmail.com' 
-    smtp_port = 465 
+    smtp_port = 587 
     smtp = smtplib.SMTP_SSL(smtp_server, smtp_port)
     sender_email = "kko20_s23_20708@gclass.ice.go.kr"
     sender_password = "wuwpdmlwzincttno"
@@ -152,10 +152,11 @@ def send_photos_via_email(photos, receiver_email):
     msg['From'] = sender_email
     msg['To'] = receiver_email
     msg['Subject'] = "인공네컷 사진"
-    content = "인공지능전자과 201 MDP 3조 인공네컷 사진 보내드립니다"
+    content = "인공지능전자과 201 MDP 3조 인공네컷 사진 보내드립니다."
     content_part = MIMEText(content, "plain")
     msg.attach(content_part)
 
+    # 파일 첨부
     for i in range(cnt):
         image_name = resultPath[i]
         with open(image_name, 'rb') as fp:
