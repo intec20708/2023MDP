@@ -109,9 +109,6 @@ def on_press(key):
         keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
 
         
-
-
-
 # 이전 사진들을 화면에 표시하는 함수
 def display_previous_photos(photos):
     # 찍힌 사진을 저장할 리스트
