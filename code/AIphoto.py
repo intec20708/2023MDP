@@ -86,8 +86,6 @@ def capture_photo():
 def on_press(key):
     if key.name == '1':  # 발판 스위치가 연결된 키를 사용. (1)
         print("발판 스위치가 눌렸습니다.")
-        # 발판 스위치가 눌렸을 때 수행할 동작
-        capture_photo()
 
     keyboard.on_press(on_press)
 
