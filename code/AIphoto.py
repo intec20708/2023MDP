@@ -18,10 +18,25 @@ cap = cv2.VideoCapture(0)
 w = Tk()
 w.title("screen")
 w.geometry("1260x891")
+key = keyboard.read_event(suppress=True).name
+
 
 photo = PhotoImage(file="C:/Users/user/Desktop/학교/MDP/startscreen.png")
 pLabel = Label(w, image=photo)
 pLabel.pack(expand=1, anchor=CENTER)
+
+w.mainloop()
+
+def on_press(key):
+    if key.name == '1':  # 발판 스위치가 연결된 키를 사용. (1)
+        print("발판 스위치가 눌렸습니다.")
+
+    keyboard.on_press(on_press)
+
+    print("USB 발판 스위치를 대기 중입니다. 눌러보세요.")
+    keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
+
+on_press(key)
 
 # 카메라로부터 사진을 찍는 함수
 def capture_photo():
@@ -82,15 +97,19 @@ def capture_photo():
         cap.close()
     pass  
 
-
 def on_press(key):
-    if key.name == '1':  # 발판 스위치가 연결된 키를 사용. (1)
-        print("발판 스위치가 눌렸습니다.")
+    
+    while True:
+        key = keyboard.read_event(suppress=True).name
 
-    keyboard.on_press(on_press)
+        if key == '1':
+            print("발판 스위치가 눌렸습니다.")
+            keyboard.on_press(on_press)
+            
+        keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
 
-    print("USB 발판 스위치를 대기 중입니다. 눌러보세요.")
-    keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
+        
+
 
 
 # 이전 사진들을 화면에 표시하는 함수
@@ -193,11 +212,11 @@ def show_startscreen_on_monitor():
     w.mainloop()
 
 
-def main():
+def mainloop():
     # 초기화 작업 등을 수행
 
     # 발판 스위치의 GPIO 핀 설정
-    switch_pin = 18  # 발판 스위치의 GPIO 핀 번호 (예시)
+    # switch_pin = 18  # 발판 스위치의 GPIO 핀 번호 (예시)
 
     # # GPIO 설정
     # GPIO.setmode(GPIO.BCM)
