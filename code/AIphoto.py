@@ -1,233 +1,134 @@
 import cv2
-# import RPi.GPIO as GPIO
-import time
+import dlib
+import serial
+import threading
+from tkinter import *
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.mime.application import MIMEApplication
-import dlib
-import keyboard
-from tkinter import *
+from email.mime.base import MIMEBase
+from email import encoders
 
-detector = dlib.get_frontal_face_detector()
-file_path = "C:/Users/user/Desktop/학교/MDP/pictures"
-startscreen_path = "C:/Users/user/Desktop/학교/MDP/startscreen.png"
-cap = cv2.VideoCapture(0)
+detector = dlib.get_frontal_face_detector()  # 얼굴 인식 모델
+cap = cv2.VideoCapture(0)  # 카메라 초기화
+sticker_img = cv2.imread('cat.png', cv2.IMREAD_UNCHANGED)  # 스티커 이미지 설정
+photo_names = ['result1.jpg', 'result2.jpg', 'result3.jpg', 'result4.jpg']  # 찍힌 파일 저장할 곳 지정
+ser = serial.Serial("COM6", 115200)
+received_data2 = "No respond"
 
-w = Tk()
-w.title("screen")
-w.geometry("1260x891")
-key = keyboard.read_event(suppress=True).name
-
-
-photo = PhotoImage(file="C:/Users/user/Desktop/학교/MDP/startscreen.png")
-pLabel = Label(w, image=photo)
-pLabel.pack(expand=1, anchor=CENTER)
-
-w.mainloop()
-
-def on_press(key):
-    if key.name == '1':  # 발판 스위치가 연결된 키를 사용. (1)
-        print("발판 스위치가 눌렸습니다.")
-
-    keyboard.on_press(on_press)
-
-    print("USB 발판 스위치를 대기 중입니다. 눌러보세요.")
-    keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
-
-on_press(key)
-
-# 카메라로부터 사진을 찍는 함수
-def capture_photo():
-    # OpenCV를 사용하여 카메라로부터 사진을 찍는 코드
-    cap = cv2.VideoCapture(0)
-    display_previous_photos()
-    
-    try:
-        # 카메라 설정 (해상도, 화면 회전 등)
-        cap.resolution = (1920, 1080)
-        
-        # 카메라 뷰파인더 표시 (필수는 아니지만 테스트 용이)
-        cap.start_preview()
-        
-        sticker_img = cv2.imread('imgs/bear.png', cv2.IMREAD_UNCHANGED)
-        
-        while True:
-            ret, img = cap.read()
-            
-            if ret:
-                cv2.imwrite(file_path, img)
-            else:
-                break
-            
-            dets = detector(img)
-            
-            for det in dets:
-                        
-                x1 = det.left() - 40
-                y1 = det.top() - 50
-                x2 = det.right() + 40
-                y2 = det.bottom() + 30
-                
-                try:
-                    overlay_img = sticker_img.copy()
-                    overlay_img = cv2.resize(overlay_img, dsize=(x2-x1,y2-y1))
-                    overlay_alpha = overlay_img[:, :, 3:4] / 255.0
-                    background_alpha = 1.0 - overlay_alpha
-                    img[y1:y2, x1:x2] = overlay_alpha * overlay_img[:, :, :3] + background_alpha * img[y1:y2, x1:x2]
-                except:
-                    pass
-            
-            cv2.imshow('result', img)
-            if cv2.waitKey(1) == ord('q'):
-                break
-            
-            # 파일 이름 생성
-            filename = "result1.jpg"
-
-            # 사진 촬영 및 저장
-            cap.capture(filename)
-
-            # 카메라 뷰파인더 종료
-            cap.stop_preview()
-
-    finally:
-        # 카메라 객체 정리
-        cap.close()
-    pass  
-
-def on_press(key):
-    
+def read_serial_data2():
+    global received_data2
     while True:
-        key = keyboard.read_event(suppress=True).name
-
-        if key == '1':
-            print("발판 스위치가 눌렸습니다.")
-            keyboard.on_press(on_press)
-            
-        keyboard.wait('esc')  # 프로그램이 종료되지 않도록 대기
-
-        
-# 이전 사진들을 화면에 표시하는 함수
-def display_previous_photos(photos):
-    # 찍힌 사진을 저장할 리스트
-    photos = []
-
-    # 사진 4장 찍기
-    for _ in range(4):
-        ret, frame = cap.read()  # 카메라에서 프레임 읽기
-        if ret:
-            photos.append(frame)  # 찍은 사진을 리스트에 추가
-            
-    # 이미지 파일 경로 리스트
-    image_paths = ['result1.jpg', 'result2.jpg', 'result3.jpg', 'result4.jpg']
-
-    # 미리 찍힌 사진들을 리스트로 읽어들임
-    images = [cv2.imread(image_path) for image_path in image_paths]
-
-    # 이미지가 나란히 표시될 윈도우 생성
-    cv2.namedWindow('Side-by-Side Images', cv2.WINDOW_NORMAL)
-
-    # 이미지를 가로로 나란히 연결하여 새 이미지 생성
-    side_by_side = cv2.hconcat(images)
-
-    # 나란히 연결된 이미지를 윈도우에 표시
-    cv2.imshow('Side-by-Side Images', side_by_side)
-
-    pass  
-
-
-# 사용자에게 이메일을 입력받는 함수
-def ask_user_for_email():
+        received_data2 = ser.readline().decode().strip()
+        print(received_data2)
+        main()
     
-    # 사용자에게 이메일 입력을 받는 코드
-    receiver_email = input("이메일을 입력하세요: ")
-    return receiver_email
-
-
-# 이메일로 사진을 전송하는 함수
-def send_photos_via_email(photos, receiver_email):
-
-    global txtbox
-    global cnt
-    global resultPath
-    
-    txt = txtbox.get("1.0", "end")
-    
-    # 이메일 설정
-    smtp_server = 'smtp.gmail.com' 
-    smtp_port = 587 
-    smtp = smtplib.SMTP_SSL(smtp_server, smtp_port)
+# 이메일 설정 및 전송 함수
+def sendemail():
+    # 보내는 이메일 계정 설정
     sender_email = "kko20_s23_20708@gclass.ice.go.kr"
     sender_password = "wuwpdmlwzincttno"
-    smtp.login(sender_email, sender_password)
-    
-    # 이메일 내용 설정
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = "인공네컷 사진"
-    content = "인공지능전자과 201 MDP 3조 인공네컷 사진 보내드립니다."
-    content_part = MIMEText(content, "plain")
-    msg.attach(content_part)
+
+    # 받는 이메일 주소 및 제목 설정
+    receiver_email = ask_user_for_email()
+    subject = "인공네컷"
+
+    # 이메일 본문 내용
+    body = "안녕하세요, 인공네컷 사진 보내드립니다."
+
+    # 이메일 서버 설정
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = subject
+
+    # 본문 추가
+    message.attach(MIMEText(body, "plain"))
 
     # 파일 첨부
-    for i in range(cnt):
-        image_name = resultPath[i]
-        with open(image_name, 'rb') as fp:
-            img = MIMEImage(fp.read())
-            img.add_header('Content-Disposition', 'attachment', 'filename=image_name')
-            msg.attach(img)
-                        
-    smtp.sendmail(sender_email, txt, msg.as_string())
-    smtp.quit()
+    for file_name in photo_names[-4:]:  # 최근 4장의 파일만 선택
+        attachment = open(file_name, "rb")  # 파일 오픈
+        base = MIMEBase("application", "octet-stream")
+        base.set_payload(attachment.read())
+        encoders.encode_base64(base)
+        base.add_header("Content-Disposition", f"attachment; filename={file_name}")
+        message.attach(base) 
 
-    # 이메일 서버 연결 및 전송
-    try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()  # TLS 보안 연결 시작
+    # SMTP 세션 열기
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
         server.login(sender_email, sender_password)
-        server.sendmail(sender_email, receiver_email, msg.as_string())
-        server.quit()
-        print("이메일이 성공적으로 전송되었습니다.")
-    except Exception as e:
-        print(f"이메일 전송 중 오류 발생: {e}")
         
-       
-# 모니터에 이미지를 표시하는 함수
-def show_startscreen_on_monitor():
+        # 이메일 보내기
+        server.sendmail(sender_email, receiver_email, message.as_string())
+
+    print("이메일이 성공적으로 보내졌습니다.")
+
     
+def ask_user_for_email():
+        receiver_email = input("이메일을 입력하세요: ")
+        return receiver_email
+    
+def main():
+    global cap
+    if "Button1" in received_data2:
+
+        num_photos = 4  # 찍을 사진 개수 설정
+        space_counter = 0  # 스페이스바 카운터
+
+        cap = cv2.VideoCapture(0)  # 카메라 캡처 객체 생성
+        if not cap.isOpened():  # 카메라가 정상적으로 열리지 않은 경우
+            print("카메라를 열 수 없습니다.")
+            return
+
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            cv2.imshow('Camera', frame)
+
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                break  # 'q' 키를 누르면 종료
+            elif key == ord(' '):  # 스페이스바를 누르면 사진 촬영 모드
+                space_counter += 1
+                if space_counter <= num_photos:  # num_photos만큼의 스페이스바 입력이 있을 때
+                    photo_name = f'result{space_counter}.jpg'  # 파일명 생성
+                    cv2.imwrite(photo_name, frame)  # 현재 프레임을 파일로 저장
+                    photo_names.append(photo_name)  # 파일명을 리스트에 추가
+
+                    if space_counter == num_photos:  # 마지막 사진을 찍은 경우 종료
+                        break
+                
+    elif "Button2" in received_data2:
+        sendemail()
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+
+# 시리얼로부터 데이터를 읽고 변수에 저장합니다.
+serial_thread2 = threading.Thread(target=read_serial_data2)
+serial_thread2.daemon = True  
+serial_thread2.start()
+
+# 시작 화면을 띄우는 함수
+def startscreen():
     w = Tk()
     w.title("screen")
     w.geometry("1260x891")
 
-    photo = PhotoImage(file="C:/Users/user/Desktop/학교/MDP/startscreen.png")
+    photo = PhotoImage(file="startscreen.png")
     pLabel = Label(w, image=photo)
     pLabel.pack(expand=1, anchor=CENTER)
 
     w.mainloop()
 
+startscreen()
 
-def mainloop():
-    # 초기화 작업 등을 수행
 
-    # 발판 스위치의 GPIO 핀 설정
-    # switch_pin = 18  # 발판 스위치의 GPIO 핀 번호 (예시)
-
-    # # GPIO 설정
-    # GPIO.setmode(GPIO.BCM)
-    # GPIO.setup(switch_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    # GPIO.add_event_detect(switch_pin, GPIO.RISING, callback=switch_pressed_callback, bouncetime=300)
-
-    # 이미지 모니터에 이미지 표시
-    show_startscreen_on_monitor()
- 
-    if on_press():
-        capture_photo()
         
-        ask_user_for_email()
-        send_photos_via_email()
-
-    # 라즈베리 파이 GPIO 정리 (프로그램 종료 시)
-    # GPIO.cleanup()
