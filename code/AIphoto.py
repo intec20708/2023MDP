@@ -87,6 +87,23 @@ def main():
             ret, frame = cap.read()
             if not ret:
                 break
+            
+            dets = detector(frame)  # 이미지 내에서 얼굴을 감지
+
+            for det in dets:
+                x1 = det.left() - 40
+                y1 = det.top() - 50
+                x2 = det.right() + 40
+                y2 = det.bottom() + 30
+
+                try:
+                    overlay_img = sticker_img.copy()
+                    overlay_img = cv2.resize(overlay_img, dsize=(x2 - x1, y2 - y1))
+                    overlay_alpha = overlay_img[:, :, 3:4] / 255.0
+                    background_alpha = 1.0 - overlay_alpha
+                    frame[y1:y2, x1:x2] = overlay_alpha * overlay_img[:, :, :3] + background_alpha * frame[y1:y2, x1:x2]
+                except:
+                    pass
 
             cv2.imshow('Camera', frame)
 
@@ -129,6 +146,3 @@ def startscreen():
     w.mainloop()
 
 startscreen()
-
-
-        
