@@ -66,7 +66,8 @@ def sendemail():
 
     print("이메일이 성공적으로 보내졌습니다.")
 
-    
+
+# 사용자에게 이메일을 입력받는 함수
 def ask_user_for_email():
         receiver_email = input("이메일을 입력하세요: ")
         return receiver_email
@@ -145,4 +146,4 @@ def startscreen():
 
     w.mainloop()
 
-startscreen()
+startscreen()     
